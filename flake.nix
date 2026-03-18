@@ -38,7 +38,7 @@
                   if not isinstance(doc, dict):
                       print(f'FAIL: {sys.argv[1]}: expected mapping, got {type(doc).__name__}')
                       sys.exit(1)
-                  kind = doc.get('kind', '')
+                  kind = doc.get('kind', '''')
                   if kind == 'CustomResourceDefinition':
                       spec = doc.get('spec', {})
                       if 'group' not in spec:
