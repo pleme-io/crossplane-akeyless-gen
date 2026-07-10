@@ -1,0 +1,294 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gatewayproduceroracles.akeyless.crossplane.io
+spec:
+  group: akeyless.crossplane.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - akeyless
+    kind: GatewayProducerOracle
+    plural: gatewayproduceroracles
+    singular: gatewayproduceroracle
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              deletionPolicy:
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  custom_username_template:
+                    description: Customize how temporary usernames are generated using go template
+                    type: string
+                  db_server_certificates:
+                    description: (Optional) DB server certificates
+                    type: string
+                  db_server_name:
+                    description: (Optional) Server name for certificate verification
+                    type: string
+                  delete_protection:
+                    description: Protection from accidental deletion of this object [true/false]
+                    type: string
+                  input_rule:
+                    description: |-
+                      Agentic input rule in name=...,rule=... format (e.g. name=rule1,rule=Sanitize input)
+                      Mirrors commands.AgenticRulesParams — kept separate because ResourceDS
+                      cannot embed it (different package, different struct layout).
+                    items:
+                      type: string
+                    type: array
+                  item_custom_fields:
+                    additionalProperties:
+                      type: string
+                    description: Additional custom fields to associate with the item
+                    type: object
+                  name:
+                    description: Dynamic secret name (immutable)
+                    type: string
+                  oracle_host:
+                    description: Oracle Host
+                    type: string
+                  oracle_password:
+                    description: Oracle Password
+                    type: string
+                  oracle_port:
+                    description: Oracle Port
+                    type: string
+                  oracle_revocation_statements:
+                    description: Oracle Revocation statements
+                    type: string
+                  oracle_screation_statements:
+                    description: Oracle Creation statements
+                    type: string
+                  oracle_service_name:
+                    description: Oracle DB Name
+                    type: string
+                  oracle_username:
+                    description: Oracle Username
+                    type: string
+                  output_rule:
+                    description: Agentic output rule in name=...,rule=... format (e.g. name=rule1,rule=Mask secrets)
+                    items:
+                      type: string
+                    type: array
+                  password_length:
+                    description: The length of the password to be generated
+                    type: string
+                  producer_encryption_key_name:
+                    description: Dynamic producer encryption key
+                    type: string
+                  tags:
+                    description: Add tags attached to this object
+                    items:
+                      type: string
+                    type: array
+                  target_name:
+                    description: Target name
+                    type: string
+                  use_capital_letters:
+                    description: Specifies whether the generated temporary password must contain at least one uppercase character from the ISO basic Latin alphabet (A to Z). [true/false]
+                    type: string
+                  use_lower_letters:
+                    description: Specifies whether the generated temporary password must contain at least one lowercase character from the ISO basic Latin alphabet (a to z). [true/false]
+                    type: string
+                  use_numbers:
+                    description: Specifies whether the generated temporary password must contain at least one numeric character (0 to 9). [true/false]
+                    type: string
+                  use_special_characters:
+                    type: string
+                  user_ttl:
+                    description: User TTL
+                    type: string
+                required:
+                - name
+                type: object
+              managementPolicies:
+                items:
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                properties:
+                  name:
+                    type: string
+                  policy:
+                    properties:
+                      resolution:
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              publishConnectionDetailsTo:
+                properties:
+                  configRef:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                  metadata:
+                    type: object
+                  name:
+                    type: string
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+          status:
+            properties:
+              atProvider:
+                properties:
+                  custom_username_template:
+                    description: Customize how temporary usernames are generated using go template
+                    type: string
+                  db_server_certificates:
+                    description: (Optional) DB server certificates
+                    type: string
+                  db_server_name:
+                    description: (Optional) Server name for certificate verification
+                    type: string
+                  delete_protection:
+                    description: Protection from accidental deletion of this object [true/false]
+                    type: string
+                  input_rule:
+                    description: |-
+                      Agentic input rule in name=...,rule=... format (e.g. name=rule1,rule=Sanitize input)
+                      Mirrors commands.AgenticRulesParams — kept separate because ResourceDS
+                      cannot embed it (different package, different struct layout).
+                    items:
+                      type: string
+                    type: array
+                  item_custom_fields:
+                    additionalProperties:
+                      type: string
+                    description: Additional custom fields to associate with the item
+                    type: object
+                  name:
+                    description: Dynamic secret name
+                    type: string
+                  oracle_host:
+                    description: Oracle Host
+                    type: string
+                  oracle_password:
+                    description: Oracle Password
+                    type: string
+                  oracle_port:
+                    description: Oracle Port
+                    type: string
+                  oracle_revocation_statements:
+                    description: Oracle Revocation statements
+                    type: string
+                  oracle_screation_statements:
+                    description: Oracle Creation statements
+                    type: string
+                  oracle_service_name:
+                    description: Oracle DB Name
+                    type: string
+                  oracle_username:
+                    description: Oracle Username
+                    type: string
+                  output_rule:
+                    description: Agentic output rule in name=...,rule=... format (e.g. name=rule1,rule=Mask secrets)
+                    items:
+                      type: string
+                    type: array
+                  password_length:
+                    description: The length of the password to be generated
+                    type: string
+                  producer_encryption_key_name:
+                    description: Dynamic producer encryption key
+                    type: string
+                  tags:
+                    description: Add tags attached to this object
+                    items:
+                      type: string
+                    type: array
+                  target_name:
+                    description: Target name
+                    type: string
+                  use_capital_letters:
+                    description: Specifies whether the generated temporary password must contain at least one uppercase character from the ISO basic Latin alphabet (A to Z). [true/false]
+                    type: string
+                  use_lower_letters:
+                    description: Specifies whether the generated temporary password must contain at least one lowercase character from the ISO basic Latin alphabet (a to z). [true/false]
+                    type: string
+                  use_numbers:
+                    description: Specifies whether the generated temporary password must contain at least one numeric character (0 to 9). [true/false]
+                    type: string
+                  use_special_characters:
+                    type: string
+                  user_ttl:
+                    description: User TTL
+                    type: string
+                type: object
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      type: string
+                    reason:
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - type
+                  - status
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

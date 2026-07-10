@@ -1,20 +1,36 @@
 # crossplane-akeyless-gen
 
-Auto-generated Crossplane artifacts for the Akeyless provider.
+Auto-generated Crossplane provider for Akeyless.
 
-**Do not edit manually.** This repo is populated by the [iac-forge](https://github.com/pleme-io/iac-forge) code generation pipeline from [TOML resource specifications](https://github.com/pleme-io/akeyless-terraform-resources).
+**Do not edit manually.** This repo is populated by the [iac-forge](https://github.com/pleme-io/iac-forge) code generation pipeline (`crossplane-forge` backend) from [TOML resource specifications](https://github.com/pleme-io/akeyless-terraform-resources), driven by the [akeyless-go](https://github.com/pleme-io/akeyless-go) SDK's OpenAPI spec.
 
 ## Contents
 
-CRD YAML manifests packaged as a Nix derivation.
+A real, buildable Crossplane provider — 156 resources + 26 gateway actions, 182 total controllers:
+
+- `apis/<kind>/v1alpha1/` — typed Kubernetes CRD Go types + `zz_generated_*` deepcopy/managed-resource boilerplate, one package per resource
+- `internal/controller/<kind>/` — the `crossplane-runtime` `ExternalClient` (Observe/Create/Update/Delete) reconciler for each resource
+- `internal/controller/setup.go` — wires every controller into the manager
+- `package/crds/*.yaml` — the CRD manifests
+- `cmd/provider/main.go` — the provider-manager entrypoint
+- `helm/` — a Helm chart for deploying the provider
 
 ## Verification
 
-Artifacts are validated by [iac-verify](https://github.com/pleme-io/akeyless-terraform-resources/tree/main/tools/iac-verify) via the aggregate repo's `nix flake check`.
+Every commit is verified end-to-end, not just counted:
 
 ```bash
-iac-verify crossplane .
+nix build .#default   # buildGoModule -- produces a real runnable provider binary
+nix flake check        # CRD + Go-source presence check
 ```
+
+The generator itself (`crossplane-forge`) ships its own resource-shape
+catalog for the handful of Akeyless endpoints whose request bodies
+don't follow the default `Name`-identified pattern (singleton
+gateway-config resources, `_v2` API variants). A generation whose
+output doesn't `go build ./...` cleanly is a generator bug, not a
+publishable state -- see `crossplane-forge`'s `controller_gen.rs` for
+the resource-shape overrides this provider's generation depends on.
 
 ## Pipeline
 

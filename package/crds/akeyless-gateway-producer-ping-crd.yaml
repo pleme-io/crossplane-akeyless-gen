@@ -1,0 +1,314 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gatewayproducerpings.akeyless.crossplane.io
+spec:
+  group: akeyless.crossplane.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - akeyless
+    kind: GatewayProducerPing
+    plural: gatewayproducerpings
+    singular: gatewayproducerping
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              deletionPolicy:
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  delete_protection:
+                    description: Protection from accidental deletion of this object [true/false]
+                    type: string
+                  input_rule:
+                    description: |-
+                      Agentic input rule in name=...,rule=... format (e.g. name=rule1,rule=Sanitize input)
+                      Mirrors commands.AgenticRulesParams — kept separate because ResourceDS
+                      cannot embed it (different package, different struct layout).
+                    items:
+                      type: string
+                    type: array
+                  item_custom_fields:
+                    additionalProperties:
+                      type: string
+                    description: Additional custom fields to associate with the item
+                    type: object
+                  name:
+                    description: Dynamic secret name (immutable)
+                    type: string
+                  output_rule:
+                    description: Agentic output rule in name=...,rule=... format (e.g. name=rule1,rule=Mask secrets)
+                    items:
+                      type: string
+                    type: array
+                  ping_administrative_port:
+                    description: Ping Federate administrative port
+                    type: string
+                  ping_atm_id:
+                    description: Set a specific Access Token Management (ATM) instance for the created OAuth Client by providing the ATM Id. If no explicit value is given, the default pingfederate server ATM will be set.
+                    type: string
+                  ping_authorization_port:
+                    description: Ping Federate authorization port
+                    type: string
+                  ping_cert_subject_dn:
+                    description: The subject DN of the client certificate. If no explicit value is given, the producer will create CA certificate and matched client certificate and return it as value. Used in conjunction with ping-issuer-dn (relevant for CLIENT_TLS_CERTIFICATE authentication method)
+                    type: string
+                  ping_client_authentication_type:
+                    description: OAuth Client Authentication Type [CLIENT_SECRET, PRIVATE_KEY_JWT, CLIENT_TLS_CERTIFICATE]
+                    type: string
+                  ping_enforce_replay_prevention:
+                    description: Determines whether PingFederate requires a unique signed JWT from the client for each action (relevant for PRIVATE_KEY_JWT authentication method) [true/false]
+                    type: string
+                  ping_grant_types:
+                    description: List of OAuth client grant types [IMPLICIT, AUTHORIZATION_CODE, CLIENT_CREDENTIALS, TOKEN_EXCHANGE, REFRESH_TOKEN, ASSERTION_GRANTS, PASSWORD, RESOURCE_OWNER_CREDENTIALS]. If no explicit value is given, AUTHORIZATION_CODE will be selected as default.
+                    items:
+                      type: string
+                    type: array
+                  ping_issuer_dn:
+                    description: Issuer DN of trusted CA certificate that imported into Ping Federate server. You may select \"Trust Any\" to trust all the existing issuers in Ping Federate server. Used in conjunction with ping-cert-subject-dn (relevant for CLIENT_TLS_CERTIFICATE authentication method)
+                    type: string
+                  ping_jwks:
+                    description: 'Base64-encoded JSON Web Key Set (JWKS). If no explicit value is given, the producer will create JWKs and matched signed JWT (Sign Algo: RS256) and return it as value (relevant for PRIVATE_KEY_JWT authentication method)'
+                    type: string
+                  ping_jwks_url:
+                    description: The URL of the JSON Web Key Set (JWKS). If no explicit value is given, the producer will create JWKs and matched signed JWT and return it as value (relevant for PRIVATE_KEY_JWT authentication method)
+                    type: string
+                  ping_password:
+                    description: Ping Federate privileged user password
+                    type: string
+                  ping_privileged_user:
+                    description: Ping Federate privileged user
+                    type: string
+                  ping_redirect_uris:
+                    description: List of URIs to which the OAuth authorization server may redirect the resource owner's user agent after authorization is obtained. At least one redirection URI is required for the AUTHORIZATION_CODE and IMPLICIT grant types.
+                    items:
+                      type: string
+                    type: array
+                  ping_restricted_scopes:
+                    description: Limit the OAuth client to specific scopes list
+                    items:
+                      type: string
+                    type: array
+                  ping_signing_algo:
+                    description: The signing algorithm that the client must use to sign its request objects [RS256,RS384,RS512,ES256,ES384,ES512,PS256,PS384,PS512] If no explicit value is given, the client can use any of the supported signing algorithms (relevant for PRIVATE_KEY_JWT authentication method)
+                    type: string
+                  ping_url:
+                    description: Ping URL
+                    type: string
+                  producer_encryption_key_name:
+                    description: Dynamic producer encryption key
+                    type: string
+                  tags:
+                    description: Add tags attached to this object
+                    items:
+                      type: string
+                    type: array
+                  target_name:
+                    description: Target name
+                    type: string
+                  user_ttl:
+                    description: The time from dynamic secret creation to expiration.
+                    type: string
+                required:
+                - name
+                type: object
+              managementPolicies:
+                items:
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                properties:
+                  name:
+                    type: string
+                  policy:
+                    properties:
+                      resolution:
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              publishConnectionDetailsTo:
+                properties:
+                  configRef:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                  metadata:
+                    type: object
+                  name:
+                    type: string
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+          status:
+            properties:
+              atProvider:
+                properties:
+                  delete_protection:
+                    description: Protection from accidental deletion of this object [true/false]
+                    type: string
+                  input_rule:
+                    description: |-
+                      Agentic input rule in name=...,rule=... format (e.g. name=rule1,rule=Sanitize input)
+                      Mirrors commands.AgenticRulesParams — kept separate because ResourceDS
+                      cannot embed it (different package, different struct layout).
+                    items:
+                      type: string
+                    type: array
+                  item_custom_fields:
+                    additionalProperties:
+                      type: string
+                    description: Additional custom fields to associate with the item
+                    type: object
+                  name:
+                    description: Dynamic secret name
+                    type: string
+                  output_rule:
+                    description: Agentic output rule in name=...,rule=... format (e.g. name=rule1,rule=Mask secrets)
+                    items:
+                      type: string
+                    type: array
+                  ping_administrative_port:
+                    description: Ping Federate administrative port
+                    type: string
+                  ping_atm_id:
+                    description: Set a specific Access Token Management (ATM) instance for the created OAuth Client by providing the ATM Id. If no explicit value is given, the default pingfederate server ATM will be set.
+                    type: string
+                  ping_authorization_port:
+                    description: Ping Federate authorization port
+                    type: string
+                  ping_cert_subject_dn:
+                    description: The subject DN of the client certificate. If no explicit value is given, the producer will create CA certificate and matched client certificate and return it as value. Used in conjunction with ping-issuer-dn (relevant for CLIENT_TLS_CERTIFICATE authentication method)
+                    type: string
+                  ping_client_authentication_type:
+                    description: OAuth Client Authentication Type [CLIENT_SECRET, PRIVATE_KEY_JWT, CLIENT_TLS_CERTIFICATE]
+                    type: string
+                  ping_enforce_replay_prevention:
+                    description: Determines whether PingFederate requires a unique signed JWT from the client for each action (relevant for PRIVATE_KEY_JWT authentication method) [true/false]
+                    type: string
+                  ping_grant_types:
+                    description: List of OAuth client grant types [IMPLICIT, AUTHORIZATION_CODE, CLIENT_CREDENTIALS, TOKEN_EXCHANGE, REFRESH_TOKEN, ASSERTION_GRANTS, PASSWORD, RESOURCE_OWNER_CREDENTIALS]. If no explicit value is given, AUTHORIZATION_CODE will be selected as default.
+                    items:
+                      type: string
+                    type: array
+                  ping_issuer_dn:
+                    description: Issuer DN of trusted CA certificate that imported into Ping Federate server. You may select \"Trust Any\" to trust all the existing issuers in Ping Federate server. Used in conjunction with ping-cert-subject-dn (relevant for CLIENT_TLS_CERTIFICATE authentication method)
+                    type: string
+                  ping_jwks:
+                    description: 'Base64-encoded JSON Web Key Set (JWKS). If no explicit value is given, the producer will create JWKs and matched signed JWT (Sign Algo: RS256) and return it as value (relevant for PRIVATE_KEY_JWT authentication method)'
+                    type: string
+                  ping_jwks_url:
+                    description: The URL of the JSON Web Key Set (JWKS). If no explicit value is given, the producer will create JWKs and matched signed JWT and return it as value (relevant for PRIVATE_KEY_JWT authentication method)
+                    type: string
+                  ping_password:
+                    description: Ping Federate privileged user password
+                    type: string
+                  ping_privileged_user:
+                    description: Ping Federate privileged user
+                    type: string
+                  ping_redirect_uris:
+                    description: List of URIs to which the OAuth authorization server may redirect the resource owner's user agent after authorization is obtained. At least one redirection URI is required for the AUTHORIZATION_CODE and IMPLICIT grant types.
+                    items:
+                      type: string
+                    type: array
+                  ping_restricted_scopes:
+                    description: Limit the OAuth client to specific scopes list
+                    items:
+                      type: string
+                    type: array
+                  ping_signing_algo:
+                    description: The signing algorithm that the client must use to sign its request objects [RS256,RS384,RS512,ES256,ES384,ES512,PS256,PS384,PS512] If no explicit value is given, the client can use any of the supported signing algorithms (relevant for PRIVATE_KEY_JWT authentication method)
+                    type: string
+                  ping_url:
+                    description: Ping URL
+                    type: string
+                  producer_encryption_key_name:
+                    description: Dynamic producer encryption key
+                    type: string
+                  tags:
+                    description: Add tags attached to this object
+                    items:
+                      type: string
+                    type: array
+                  target_name:
+                    description: Target name
+                    type: string
+                  user_ttl:
+                    description: The time from dynamic secret creation to expiration.
+                    type: string
+                type: object
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      type: string
+                    reason:
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                  - type
+                  - status
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
